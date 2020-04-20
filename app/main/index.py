@@ -6,7 +6,14 @@ main = Blueprint('main', __name__, url_prefix='/')
 
 # 로그인,회원가입 등의 기능을 포함하는 클래스
 class ManageUser():
-	def checkUser(self, userName, password):
+	usr = ''
+	pwd = ''
+
+	def __init__(self, userName, password):
+		self.usr = userName
+		self.pwd = password
+
+	def checkUser(self):
 		try:
 			db_class = dbModule.Database()
 
@@ -14,7 +21,7 @@ class ManageUser():
 					FROM testDB.user \
 					WHERE username = '{userName}' \
 					AND password = '{password}'".format(
-						userName=userName, password=password)
+						userName=self.usr, password=self.pwd)
 
 			row = db_class.executeOne(sql)
 
@@ -40,14 +47,13 @@ def login():
 	if request.method == 'GET':
 		return render_template('/main/login.html')
 	else:
-		userName = request.form['username']
-		password = request.form['password']
 		try:
-			data = ManageUser.checkUser('', userName, password)
+			manageUser = ManageUser(userName = request.form['username'], password = request.form['password'])
+			data = manageUser.checkUser()
 			if data is not None:
-				session['logged_in'] = True
+				#session['logged_in'] = True
 				return render_template(data)
 			else:
-				return 'Login failed'
+				return render_template(data)
 		except:
 			return 'Login failed'
